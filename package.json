@@ -1,0 +1,17 @@
+{
+  "name": "wings-cli",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Igor Demko <igor@wings.ai>",
+  "license": "MIT",
+  "dependencies": {
+    "bip39": "^3.0.2",
+    "ethereumjs-wallet": "^0.6.3",
+    "inquirer": "^7.0.0",
+    "web3": "^1.2.1",
+    "yargs": "^14.0.0"
+  },
+  "bin": {
+    "peg-cli": "src/cli.js"
+  }
+}

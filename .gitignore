@@ -1,0 +1,5 @@
+./userConfig.json
+res
+node_modules
+.idea
+.vscode
