@@ -64,8 +64,6 @@ module.exports = async function(argv, yargs) {
 	const privateKeyFileData = fs.readFileSync(privateKeyPath, 'utf8');
 	const wallet = await getEthWallet(privateKeyFileData);
 
-	console.log(wallet.getAddress().toString('hex'));
-
 	if(!wallet) {
 		throw new InvalidValueException('Failed to access account');
 	}
@@ -90,7 +88,6 @@ module.exports = async function(argv, yargs) {
 
 async function getEthWallet(data, count) {
 	try {
-		console.log(data);
 		const pkBuffer = Buffer.from(data, 'hex');
 		const wallet = ethWallet.fromPrivateKey(pkBuffer);
 

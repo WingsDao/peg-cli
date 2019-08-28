@@ -29,8 +29,7 @@ module.exports.handler = async function(argv) {
 	}
 
 	const options = {
-		// from: '0x' + ethWallet.getAddress().toString('hex'),
-		from: '0xc06F51cf4f0f76ECEA5128b1ee9BE9780D390762',
+		from: '0x' + ethWallet.getAddress().toString('hex'),
 		gas,
 	}
 

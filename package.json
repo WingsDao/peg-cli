@@ -1,9 +1,10 @@
 {
-  "name": "wings-cli",
+  "name": "peg-cli",
   "version": "1.0.0",
-  "main": "index.js",
-  "author": "Igor Demko <igor@wings.ai>",
-  "license": "MIT",
+  "main": "src/index.js",
+  "author": "Wings Stiftung",
+  "license": "GPLv3",
+  "preferGlobal": true,
   "dependencies": {
     "bip39": "^3.0.2",
     "ethereumjs-wallet": "^0.6.3",
