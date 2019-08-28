@@ -24,36 +24,28 @@ module.exports.handler = async function(argv) {
 		throw new InvalidValueException('The number of transactions is less than "start" parameter');
 	}
 
-	const promises = [];
-
 	let max = countTransactions;
 	if(count) {
 		max = start + count > countTransactions ? countTransactions : start + count;
 	}
 
+	const ids = [];
 	for(let i = start; i < max; i++) {
-		promises.push(new Promise(async res => {
-			const tx = await wb._poa.methods.transactions(i).call();
-			tx.id = i;
-			tx.isConfirmed = await wb._poa.methods.isConfirmed(i).call();
-			tx.confirmationCount = await wb._poa.methods.getConfirmationCount(i).call();
-			res(tx);
-		}));
+		ids.push(i);
 	}
 
-	await Promise.all(promises);
+	const transactions = await wb.getTransactionsInfo(ids);
 
-	promises.forEach(tx => {
-		tx.then(tx => {
-			console.log('Transaction ID: ' + tx.id);
-			console.log('Hash: ' + tx.hash);
-			console.log('Creator: ' + tx.creator);
-			console.log('Executed: ' + tx.executed);
-			console.log('Confirmed: ' + tx.isConfirmed);
-			console.log('Confirmations: ' + tx.confirmationCount);
-			console.log('Destination: ' + tx.destination);
-			console.log("----------");
-			console.log("")
-		});
-	})
+	transactions.filter(v => v).forEach(tx => {
+		console.log('Transaction ID: ' + tx.id);
+		console.log('Hash: ' + tx.hash);
+		console.log('Creator: ' + tx.creator);
+		console.log('Executed: ' + tx.executed);
+		console.log('Confirmed: ' + tx.isConfirmed);
+		console.log('Confirmations: ' + tx.confirmationCount);
+		console.log('Is Failed: ' + tx.isFailed);
+		console.log('Destination: ' + tx.destination);
+		console.log("----------");
+		console.log("")
+	});
 }

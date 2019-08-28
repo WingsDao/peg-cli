@@ -32,7 +32,7 @@ module.exports.handler = async function(argv) {
 	const options = {
 		from: '0x' + ethWallet.getAddress().toString('hex'),
 		gas,
-	}
+	};
 
 	try {
 		const data = await wb._poa.methods

@@ -67,6 +67,7 @@ Manage transactions
 Commands:
   peg-cli tx confirm <transactionId>  (payable) Confirm transaction
   peg-cli tx exec <transactionId>     (payable) Execute transaction                                                                                                                                                                                       [aliases: execute]
+  peg-cli tx failed                   List of all failed transactions
   peg-cli tx info <transactionId>     Get information about transaction
   peg-cli tx list [start] [count]     Get list of transaction in ID range from <start> to <start + count>
   peg-cli tx revoke <transactionId>   (payable) Revoke transaction confirmation
@@ -120,6 +121,7 @@ Creator: 0xc06F51cf4f0f76ECEA5128b1ee9BE9780D390762
 Executed: false
 Confirmed: false
 Confirmations: 1
+Is Failed: false
 Destination: 0x3FeDf730FB6804842FfC6Bf41bb9b9Cb7E01E5CF
 ```
 ___
@@ -140,6 +142,7 @@ Creator: 0xc06F51cf4f0f76ECEA5128b1ee9BE9780D390762
 Executed: false
 Confirmed: false
 Confirmations: 1
+Is Failed: true
 Destination: 0x3FeDf730FB6804842FfC6Bf41bb9b9Cb7E01E5CF
 ----------
 .
@@ -153,6 +156,44 @@ Creator: 0xc06F51cf4f0f76ECEA5128b1ee9BE9780D390762
 Executed: false
 Confirmed: false
 Confirmations: 1
+Is Failed: false
+Destination: 0x3FeDf730FB6804842FfC6Bf41bb9b9Cb7E01E5CF
+----------
+
+```
+___
+
+
+```bash
+peg-cli tx failed
+```
+List of all failed transactions 
+
+Example:
+```bash
+$ peg-cli tx failed 
+
+Transaction ID: 0
+Hash: 0xb5692162d2bfae80fbc70b26645e35f8e54ecfcfc20f8b69be75208649f7926c
+Creator: 0xc06F51cf4f0f76ECEA5128b1ee9BE9780D390762
+Executed: false
+Confirmed: false
+Confirmations: 1
+Is Failed: true
+Destination: 0x3FeDf730FB6804842FfC6Bf41bb9b9Cb7E01E5CF
+----------
+.
+.
+.
+.
+
+Transaction ID: 10
+Hash: 0x12ced22bdaeeda72b82d241101d416d30447f3833a01b87b72c21c6be5e12b0e
+Creator: 0xc06F51cf4f0f76ECEA5128b1ee9BE9780D390762
+Executed: false
+Confirmed: false
+Confirmations: 1
+Is Failed: true
 Destination: 0x3FeDf730FB6804842FfC6Bf41bb9b9Cb7E01E5CF
 ----------
 
