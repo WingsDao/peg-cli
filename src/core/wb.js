@@ -54,9 +54,9 @@ class WB {
 		const failed = (await this._poa.getPastEvents('TX_EXECUTION_FAILED', {
 			fromBlock: 0,
 			toBlock: 'latest'
-		})).map(event => ids.includes(parseInt(event.returnValues._transactionId)));
+		})).map(event => parseInt(event.returnValues._transactionId));
 
-		return failed;
+		return ids.map(id => failed.includes(id));
 	}
 
 	async getTransactionsInfo(transactionsId, options = {}) {
