@@ -17,8 +17,8 @@ module.exports.builder = yargs => baseOptions(yargs)
 	});
 
 module.exports.handler = async function(argv) {
-	const {wb, start, count} = argv;
-	const countTransactions = await wb._poa.methods.transactionCount().call();
+	const {ethApi, start, count} = argv;
+	const countTransactions = await ethApi._poa.methods.transactionCount().call();
 
 	if(countTransactions <= start) {
 		throw new InvalidValueException('The number of transactions is less than "start" parameter');
@@ -34,7 +34,7 @@ module.exports.handler = async function(argv) {
 		ids.push(i);
 	}
 
-	const transactions = await wb.getTransactionsInfo(ids);
+	const transactions = await ethApi.getTransactionsInfo(ids);
 
 	transactions.filter(v => v).forEach(tx => {
 		console.log('Transaction ID: ' + tx.id);

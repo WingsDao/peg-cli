@@ -11,9 +11,9 @@ module.exports.builder = yargs => baseOptions(yargs)
 	})
 
 module.exports.handler = async function(argv) {
-	const {transactionId, wb} = argv;
+	const {transactionId, ethApi} = argv;
 
-	const transaction = await wb.getTransactionsInfo(transactionId);
+	const transaction = await ethApi.getTransactionsInfo(transactionId);
 
 	if(!transaction) {
 		throw new InvalidValueException('Transaction not found');

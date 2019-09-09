@@ -6,14 +6,14 @@ module.exports.desc = 'List of all failed transactions';
 
 module.exports.builder = yargs => baseOptions(yargs);
 module.exports.handler = async function(argv) {
-	const {wb} = argv;
+	const {ethApi} = argv;
 
-	const failedTxs = (await wb._poa.getPastEvents('TX_EXECUTION_FAILED', {
+	const failedTxs = (await ethApi._poa.getPastEvents('TX_EXECUTION_FAILED', {
 		fromBlock: 0,
 		toBlock: 'latest'
 	})).map(event => event.returnValues._transactionId);
 
-	let transactions = await wb.getTransactionsInfo(failedTxs, {checkFailed: false});
+	let transactions = await ethApi.getTransactionsInfo(failedTxs, {checkFailed: false});
 
 	transactions = (await Promise.all(transactions)).filter(v => v);
 

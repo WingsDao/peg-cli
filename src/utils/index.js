@@ -9,3 +9,5 @@ exports.DESTINATION = {
 
 exports.ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
+exports.eth = require('./eth/index');
+exports.wb = require('./wb/index');

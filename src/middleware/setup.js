@@ -1,10 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const web3 = require('web3');
-const bip39 = require("bip39");
-const hdkey = require('ethereumjs-wallet/hdkey');
-const ethWallet = require('ethereumjs-wallet');
-const {WB, InvalidValueException, prompt} = require('../core');
+const {InvalidValueException, prompt} = require('../core');
+const {eth, wb} = require('../utils/index');
 
 const REQUIRED_CONTRACTS = ['PoAGovernment'];
 
@@ -19,14 +17,18 @@ module.exports = async function(argv, yargs) {
 		return ;
 	}
 
-	const { privateKeyPath, contractAddresses, contractsDir, ethNetworkUrl, panicMode } = argv;
+	const { ethPrivateKeyPath, wbPrivateKeyPath, wbNetworkUrl, contractAddresses, contractsDir, ethNetworkUrl, panicMode } = argv;
 
-	if (!privateKeyPath || !contractAddresses || !contractsDir || !ethNetworkUrl) {
+	if (!ethPrivateKeyPath || !contractAddresses || !contractsDir || !ethNetworkUrl || !wbPrivateKeyPath || !wbNetworkUrl) {
 		throw new InvalidValueException(`You need to configure the settings. Follow the "${argv.$0} setup" to continue.`)
 	}
 
-	if(!fs.existsSync(privateKeyPath)) {
-		throw new InvalidValueException(`Private key file not found (path: "${privateKeyPath}")`);
+	if(!fs.existsSync(ethPrivateKeyPath)) {
+		throw new InvalidValueException(`Ethereum private key file not found (path: "${ethPrivateKeyPath}")`);
+	}
+
+	if(!fs.existsSync(wbPrivateKeyPath)) {
+		throw new InvalidValueException(`Wings Blockchain private key file not found (path: "${wbPrivateKeyPath}")`);
 	}
 
 	if(!fs.existsSync(contractsDir)) {
@@ -61,21 +63,32 @@ module.exports = async function(argv, yargs) {
 		throw new InvalidValueException(`Incorrect addresses for contracts:\n\t- ${invalidAddresses.map(i => `${i[0]}: ${i[1]}`).join("\n\t- ")}`);
 	}
 
-	const privateKeyFileData = fs.readFileSync(privateKeyPath, 'utf8');
-	const wallet = await getEthWallet(privateKeyFileData);
-
-	if(!wallet) {
-		throw new InvalidValueException('Failed to access account');
-	}
-
 	const files = {};
 	REQUIRED_CONTRACTS.forEach(file => files[file] = () => JSON.parse(fs.readFileSync(path.resolve(contractsDir, file + '.json'), 'utf8')));
 
-	argv.ethWallet = wallet;
-	argv.wb = new WB({
-		poa: { abi: files['PoAGovernment']().abi, address: contractAddresses['PoAGovernment'] },
-		web3: new web3(new web3.providers.HttpProvider(ethNetworkUrl))
-	});
+	const ethPrivateKeyFileData = fs.readFileSync(ethPrivateKeyPath, 'utf8');
+	const wbPrivateKeyFileData = fs.readFileSync(wbPrivateKeyPath, 'utf8');
+
+	const {wallet: ethWallet, api: ethApi} = eth(
+		{
+			poa: { abi: files['PoAGovernment']().abi, address: contractAddresses['PoAGovernment'] },
+			web3: new web3(new web3.providers.HttpProvider(ethNetworkUrl))
+		},
+		ethPrivateKeyFileData
+	);
+
+	const {wallet: wbWallet, api: wbApi} = wb(
+		wbNetworkUrl,
+		{
+			mnemonic: wbPrivateKeyFileData
+		}
+	);
+
+	argv.ethWallet = ethWallet;
+	argv.ethApi = ethApi;
+
+	argv.wbWallet = wbWallet;
+	argv.wbApi = wbApi;
 
 	argv.panicPrompt = async function(...args) {
 		if(!panicMode) {
@@ -85,24 +98,3 @@ module.exports = async function(argv, yargs) {
 		return (await prompt(...args)).result;
 	}
 };
-
-async function getEthWallet(data, count) {
-	try {
-		const pkBuffer = Buffer.from(data, 'hex');
-		const wallet = ethWallet.fromPrivateKey(pkBuffer);
-
-		return wallet
-	} catch (e) {
-		// nothing
-	}
-
-	const seed = await bip39.mnemonicToSeed(data.toString());
-	const hdwallet = hdkey.fromMasterSeed(seed);
-	const walletPath = "m/44'/60'/0'/0/0";
-
-	const wallet = hdwallet.derivePath(walletPath).getWallet();
-	// const address = '0x' + wallet.getAddress().toString("hex");
-	// const privateKey = wallet.getPrivateKey().toString("hex");
-
-	return wallet
-}

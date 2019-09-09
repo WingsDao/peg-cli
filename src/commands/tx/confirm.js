@@ -12,15 +12,15 @@ module.exports.builder = yargs => baseOptions(yargs)
 	});
 
 module.exports.handler = async function(argv) {
-	const {transactionId, gas, wb, ethWallet, panicPrompt} = argv;
+	const {transactionId, gas, ethApi, ethWallet, panicPrompt} = argv;
 
-	const transaction = await wb._poa.methods.transactions(transactionId).call();
+	const transaction = await ethApi._poa.methods.transactions(transactionId).call();
 
 	if(!transaction.creator || transaction.creator === ZERO_ADDRESS) {
 		throw new InvalidValueException('Transaction not found');
 	}
 
-	if(await wb._poa.methods.isConfirmed(transactionId).call()) {
+	if(await ethApi._poa.methods.isConfirmed(transactionId).call()) {
 		throw new InvalidValueException('Transaction already confirmed');
 	}
 
@@ -29,12 +29,12 @@ module.exports.handler = async function(argv) {
 	}
 
 	const options = {
-		from: '0x' + ethWallet.getAddress().toString('hex'),
+		from: ethWallet.address,
 		gas,
 	}
 
 	try {
-		const data = await wb._poa.methods
+		const data = await ethApi._poa.methods
 			.confirmTransaction(transactionId, transaction.hash)
 			.send(options);
 

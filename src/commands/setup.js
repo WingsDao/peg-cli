@@ -20,8 +20,16 @@ module.exports.handler = async function(argv) {
 			},
 			{
 				type: 'input',
-				name: 'privateKeyPath',
-				message: 'Absolute path to private key or mnemonic file:',
+				name: 'ethPrivateKeyPath',
+				message: 'Absolute path to Ethereum private key or mnemonic file:',
+				validate: function (input) {
+					return fs.existsSync(input) ? true : "File does not exist";
+				}
+			},
+			{
+				type: 'input',
+				name: 'wbPrivateKeyPath',
+				message: 'Absolute path to Wings Blockchain private key or mnemonic file:',
 				validate: function (input) {
 					return fs.existsSync(input) ? true : "File does not exist";
 				}
@@ -31,6 +39,15 @@ module.exports.handler = async function(argv) {
 				name: 'ethNetworkUrl',
 				message: 'Ethereum network url:',
 				default: 'http://localhost:7545',
+				validate: function (input) {
+					return !!input;
+				}
+			},
+			{
+				type: 'input',
+				name: 'wbNetworkUrl',
+				message: 'Wings Blockchain network url:',
+				default: 'http://localhost:1317',
 				validate: function (input) {
 					return !!input;
 				}
@@ -71,8 +88,10 @@ module.exports.handler = async function(argv) {
 
 	const res = {
 		contractsDir: answers.contractsDir,
-		privateKeyPath: answers.privateKeyPath,
+		ethPrivateKeyPath: answers.ethPrivateKeyPath,
+		wbPrivateKeyPath: answers.wbPrivateKeyPath,
 		ethNetworkUrl: answers.ethNetworkUrl,
+		wbNetworkUrl: answers.wbNetworkUrl,
 		panicMode: answers.panicMode,
 		contractAddresses
 	};

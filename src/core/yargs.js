@@ -33,7 +33,11 @@ module.exports = {
 				describe: 'The path to the config file',
 				type: 'string',
 			})
-			.option('private-key-path', {
+			.option('eth-private-key-path', {
+				describe: 'The path to the config file',
+				type: 'string',
+			})
+			.option('wb-private-key-path', {
 				describe: 'The path to the config file',
 				type: 'string',
 			})
@@ -43,6 +47,11 @@ module.exports = {
 				hidden: true,
 			})
 			.option('eth-network-url', {
+				describe: 'The path to the config file',
+				type: 'string',
+				hidden: true,
+			})
+			.option('wb-network-url', {
 				describe: 'The path to the config file',
 				type: 'string',
 				hidden: true,

@@ -1,21 +1,20 @@
 const {baseOptions} = require('../../core/yargs');
-const {InvalidValueException} = require('../../core/index');
-const {DESTINATION} = require('../../utils/index');
+const cosmos = require('cosmos-lib');
 
 module.exports.command = 'list';
 module.exports.desc = 'List of all active validators';
 
 module.exports.builder = yargs => baseOptions(yargs);
 module.exports.handler = async function(argv) {
-	const {wb} = argv;
+	const {ethApi} = argv;
 
-	const allValidators = (await wb._poa.getPastEvents('ADDED_VALIDATOR', {
+	const allValidators = (await ethApi._poa.getPastEvents('ADDED_VALIDATOR', {
 		fromBlock: 0,
 		toBlock: 'latest'
 	})).map(event => event.returnValues);
 
 	let activeValidators = allValidators.map(validator => {
-		return wb._poa.methods.isValidator(validator._ethAddress)
+		return ethApi._poa.methods.isValidator(validator._ethAddress)
 			.call()
 			.then(isValidator => {
 				if(isValidator) {
@@ -31,7 +30,7 @@ module.exports.handler = async function(argv) {
 	activeValidators.filter(v => v).forEach((validator, i) => {
 		console.log(`Validator ${i + 1}:`);
 		console.log(`Eth address: ${validator.ethAddress}`);
-		console.log(`Cosmos address: ${validator.cosmosAddress}`);
+		console.log(`Cosmos address: ${validator.cosmosAddress} (${cosmos.address.getAddressFromBytes32(Buffer.from(validator.cosmosAddress.slice(2)))})`);
 		console.log("----------\n");
 	})
 }

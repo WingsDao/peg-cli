@@ -1,6 +1,8 @@
 const {baseOptions} = require('../../core/yargs');
 const {InvalidValueException} = require('../../core/index');
 const {DESTINATION} = require('../../utils/index');
+const createAddValidatorTransaction = require('../../utils/wb/transactions/addValidator');
+const crypto = require('crypto');
 
 module.exports.command = 'add <ethAddress> <cosmosAddress>';
 module.exports.desc = '(payable) Add new validator in the PoA contract';
@@ -21,9 +23,9 @@ module.exports.builder = yargs => baseOptions(yargs)
 	});
 
 module.exports.handler = async function(argv) {
-	const {ethAddress, cosmosAddress, wb, ethWallet, panicPrompt, gas} = argv;
+	const {ethAddress, cosmosAddress, ethApi, ethWallet, wbApi, wbWallet, panicPrompt, gas} = argv;
 
-	if(!wb.web3.utils.isAddress(ethAddress)) {
+	if(!ethApi.web3.utils.isAddress(ethAddress)) {
 		throw new InvalidValueException(`'${ethAddress}' is not valid Ethereum address. Check arg <ethAddress>`);
 	}
 
@@ -31,15 +33,37 @@ module.exports.handler = async function(argv) {
 		return;
 	}
 
+	const wbAccount = await wbApi.getAccount(wbWallet.address);
+	const uniqueId = crypto.randomBytes(32).toString('hex');
+	const tx = createAddValidatorTransaction({wallet: wbWallet, account: wbAccount, gas: "200000"}, {
+		ethAddress,
+		cosmosAddress: wbApi.getAddressFromString(cosmosAddress),
+		uniqueId,
+	});
+
 	const options = {
-		from: '0x' + ethWallet.getAddress().toString('hex'),
+		from: ethWallet.address,
 		gas
 	};
 
 	try {
-		const data = wb.PoA.addValidator(ethAddress, cosmosAddress);
-		const txId = await wb.sendTransaction(DESTINATION.SELF, data, options);
-		console.log(`Transaction id: ${txId}`);
+		const wbTxId = await wbApi.broadcastTx(tx, 'block')
+			.then(res => {
+				return wbApi.getCallByUniqueId(uniqueId)
+			})
+			.then(res => {
+				return res.call.msg_id;
+			})
+			.catch(res => {
+				throw Error('Returned error: WB:' + JSON.parse(res[0].log).message);
+			});
+
+		console.log(`Wings call id: ${wbTxId}`);
+
+		const ethData = ethApi.PoA.addValidator(ethAddress, cosmosAddress);
+		const ethTxId = await ethApi.sendTransaction(DESTINATION.SELF, ethData, options);
+
+		console.log(`Ethereum transaction id: ${ethTxId}`);
 	} catch (e) {
 		const msg = e.message;
 		if(msg.includes('Returned error:')) {

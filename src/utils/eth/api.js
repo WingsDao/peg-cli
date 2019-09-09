@@ -1,6 +1,6 @@
-const {ZERO_ADDRESS} = require("../utils");
+const {ZERO_ADDRESS} = require("../index");
 
-class WB {
+class EthAPI {
 	constructor({poa, web3}) {
 		this._web3 = web3;
 		this._poa = new web3.eth.Contract(poa.abi, poa.address);
@@ -94,4 +94,4 @@ class WB {
 	}
 }
 
-module.exports = WB;
+module.exports = exports = EthAPI;

@@ -7,8 +7,10 @@
   "preferGlobal": true,
   "dependencies": {
     "bip39": "^3.0.2",
+    "cosmos-lib": "^1.0.4",
     "ethereumjs-wallet": "^0.6.3",
     "inquirer": "^7.0.0",
+    "request-promise-native": "^1.0.7",
     "web3": "^1.2.1",
     "yargs": "^14.0.0"
   },
